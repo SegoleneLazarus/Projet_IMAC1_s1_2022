@@ -3,7 +3,7 @@
 
 // j'ai tout mis dans le main pour l'instant parce que quand je mets dans un autre fichier j'ai plein d'erreurs et j'ai la flemme de tout régler mtn mais faudra mettre les struct autre part
 
-salut AD c sego en gros
+// salut AD c sego en gros
 
 // structure de l'ellipse 
 struct Ellipse{
