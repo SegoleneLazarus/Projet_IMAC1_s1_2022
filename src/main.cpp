@@ -3,6 +3,8 @@
 
 // j'ai tout mis dans le main pour l'instant parce que quand je mets dans un autre fichier j'ai plein d'erreurs et j'ai la flemme de tout régler mtn mais faudra mettre les struct autre part
 
+salut AD c sego en gros
+
 // structure de l'ellipse 
 struct Ellipse{
     int coordX;
@@ -45,11 +47,11 @@ void draw(SDL_Renderer* renderer)
 {
     /* Remplissez cette fonction pour faire l'affichage du jeu */
     
-    /* 
+    // int filledEllipseRGBA (SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
     filledEllipseRGBA(
         renderer, ... ?
     ); 
-    */
+    
    
 }
 
@@ -92,9 +94,7 @@ int main(int argc, char** argv) {
         // GESTION ACTEURS
 
         // ...
-
-        // test affichage boule
-        int filledEllipseRGBA (SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+        
         
         // EFFACAGE FRAME
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
