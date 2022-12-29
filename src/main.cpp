@@ -5,6 +5,9 @@ using namespace std;
 
 // j'ai tout mis dans le main pour l'instant
 
+const int nbBoule = 10;
+const int nbMur = 5;
+
 // structure de l'ellipse 
 struct Ellipse{
     int coordX;
@@ -15,6 +18,14 @@ struct Ellipse{
     unsigned int compoRouge;
     unsigned int compoVert;
     unsigned int compoBleu;
+};
+
+// structure du Mur
+struct Mur{
+    int x1;
+    int y1;
+    int x2;
+    int y2;
 };
 
 // initialisation de Ellipse 
@@ -30,17 +41,30 @@ void initialiseEllispe(Ellipse* ellipse, Sint16 x, Sint16 y, Sint16 dx, Sint16 d
 }
 
 // PERMET DE METTRE A JOUR LA VITESSE DE LA BOULE QUAND ELLE TAPE UN MUR
-void updateEllipse(Ellipse* ellipse) {
+void updateEllipse(Mur* tabMur, Ellipse* ellipse) {
+
+    for(int i=0;i<nbMur;i++){
+        if(tabMur[i].x1 == tabMur[i].x2){ // mur vertical
+            // vérification si boule au niveau du mur
+            if((ellipse->coordY >= tabMur[i].y1 && ellipse->coordY <= tabMur[i].y2) && (ellipse->coordY+ellipse->vitY >= tabMur[i].y1 && ellipse->coordY + ellipse->vitY <= tabMur[i].y2)){ 
+                // vérification si boule traverse mur
+                if((ellipse->coordX <= tabMur[i].x1 && ellipse->coordX + ellipse->vitX >= tabMur[i].x1) || (ellipse->coordX >= tabMur[i].x1 && ellipse->coordX + ellipse->vitX <= tabMur[i].x1)) {
+                    ellipse->vitX = -ellipse->vitX;
+                }
+        }
+        } else { //mur horizontal
+            // vérification si boule au niveau du mur
+            if((ellipse->coordX >= tabMur[i].x1 && ellipse->coordX <= tabMur[i].x2) && (ellipse->coordX + ellipse->vitX >= tabMur[i].x1 && ellipse->coordX + ellipse->vitX <= tabMur[i].x2)){ 
+                // vérification si boule traverse mur
+                if((ellipse->coordY <= tabMur[i].y1 && ellipse->coordY + ellipse->vitY >= tabMur[i].y1) || (ellipse->coordY >= tabMur[i].y1 && ellipse->coordY + ellipse->vitY <= tabMur[i].y1)) {
+                    ellipse->vitY = -ellipse->vitY;
+                }
+            }
+        }
+    }
+
     ellipse->coordX = ellipse->coordX + ellipse->vitX;
     ellipse->coordY = ellipse->coordY + ellipse->vitY;
-
-    if(ellipse->coordX <= ellipse->rayon || ellipse->coordX >= SCREEN_WIDTH-ellipse->rayon){
-        ellipse->vitX = - ellipse->vitX;
-    }
-
-    if(ellipse->coordY <= ellipse->rayon || ellipse->coordY >= SCREEN_HEIGHT-ellipse->rayon){
-        ellipse->vitY = - ellipse->vitY;
-    }
 }
 
 
@@ -55,24 +79,46 @@ void initialiseChaineEllipse(ChaineEllipse* chaine, Ellipse *ellipse, ChaineElli
     chaine->suivant = suivant;
 }
 
-// structure du Mur
-struct Mur{
-    int coordX1;
-    int coordY1;
-    int coordX2;
-    int coordY2;
-};
+void initialiseMur(Mur* mur, int x1,int x2,int y1,int y2){
+    // se prémunir contre l'utilsateur con
+    if (x2 > x1) {
+        mur->x1 = x1;
+        mur->x2 = x2;
+    } else {
+        mur->x1 = x2;
+        mur->x2 = x1;
+    }
 
+    if (y2 > y1) {
+        mur->y1 = y1;
+        mur->y2 = y2;
+    } else {
+        mur->y1 = y2;
+        mur->y2 = y1;
+    }
+}
 
+// faire un tableau de MUR et on le parcourt avec la vitesse
 
 // on a mis ChaineEllipse en paramètres car on va en avoir besoin dans le main
-void draw(SDL_Renderer* renderer,Ellipse* boule)
+void drawEllipse(SDL_Renderer* renderer,Ellipse* boule)
 {
     /* Remplissez cette fonction pour faire l'affichage du jeu */
 
     int a = 255;
 
 	filledEllipseRGBA(renderer,boule->coordX,boule->coordY,boule->rayon,boule->rayon,boule->compoRouge,boule->compoVert,boule->compoBleu,a);
+}
+
+void drawMur(SDL_Renderer* renderer,Mur* mur)
+{
+   
+    int r = 255;
+    int g = 255;
+    int b = 255;
+    int a = 255;
+
+	lineRGBA(renderer,mur->x1,mur->y1,mur->x2,mur->y2,r,g,b,a);
 }
 
 bool handleEvent()
@@ -102,6 +148,17 @@ int main(int argc, char** argv) {
 
     renderer = SDL_CreateRenderer(gWindow, -1, 0); // SDL_RENDERER_PRESENTVSYNC
 
+    //mur
+    Mur tabMur[nbMur];
+
+    // contour
+    initialiseMur(&tabMur[0],0,SCREEN_WIDTH,0,0); 
+    initialiseMur(&tabMur[1],SCREEN_WIDTH-1,SCREEN_WIDTH-1,0,SCREEN_HEIGHT); 
+    initialiseMur(&tabMur[2],SCREEN_WIDTH,0,SCREEN_HEIGHT-1,SCREEN_HEIGHT-1); 
+    initialiseMur(&tabMur[3],0,0,SCREEN_HEIGHT,0);
+
+    // mur au pif à l'intérieur
+    initialiseMur(&tabMur[4],0,SCREEN_WIDTH/2,SCREEN_HEIGHT/2,SCREEN_HEIGHT/2);
 
     // tout ce dont on a besoin pour faire une boule
     // PERMET DE CREER UNE BOULE
@@ -150,18 +207,27 @@ int main(int argc, char** argv) {
         // EFFACAGE FRAME
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
+
+        //lineRGBA(renderer,SCREEN_WIDTH/2,0,SCREEN_WIDTH/2,SCREEN_HEIGHT/2,255,255,255,255);
+        //lineRGBA(renderer,0,SCREEN_HEIGHT/2,SCREEN_WIDTH/2,SCREEN_HEIGHT/2,255,255,255,255);
+        //drawMur(renderer,&tabMur[4]);
         
         // DESSIN DE LA BOULE
-        draw(renderer, &boule);
+        drawEllipse(renderer, &boule);
 
         // mettre à jour boule ET SA VITESSE QD ELLE COGNE UN MUR
-        updateEllipse(&boule);
+        updateEllipse(tabMur, &boule);
 
         // DESSIN BOULE2
-        draw(renderer, &boule2);
+        drawEllipse(renderer, &boule2);
 
         // mettre à jour boule2
-        updateEllipse(&boule2);
+        updateEllipse(tabMur, &boule2);
+
+        // afficher mur 
+        for(int i=0;i<nbMur;i++){
+            drawMur(renderer,&tabMur[i]);
+        }
 
         // VALIDATION FRAME
         SDL_RenderPresent(renderer);
