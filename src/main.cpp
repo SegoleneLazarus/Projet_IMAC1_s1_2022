@@ -3,8 +3,7 @@
 #include <iostream>
 using namespace std;
 
-// j'ai tout mis dans le main pour l'instant parce que quand je mets dans un autre fichier j'ai plein d'erreurs et j'ai la flemme de tout régler mtn mais faudra mettre les struct autre part
-
+// j'ai tout mis dans le main pour l'instant
 
 // structure de l'ellipse 
 struct Ellipse{
@@ -30,6 +29,7 @@ void initialiseEllispe(Ellipse* ellipse, Sint16 x, Sint16 y, Sint16 dx, Sint16 d
     ellipse->compoBleu = b;
 }
 
+// PERMET DE METTRE A JOUR LA VITESSE DE LA BOULE QUAND ELLE TAPE UN MUR
 void updateEllipse(Ellipse* ellipse) {
     ellipse->coordX = ellipse->coordX + ellipse->vitX;
     ellipse->coordY = ellipse->coordY + ellipse->vitY;
@@ -44,11 +44,16 @@ void updateEllipse(Ellipse* ellipse) {
 }
 
 
-// structure de la chaine d'ellipse
+// structure de la chaine d'ellipse (A CHANGER POUR LES LISTES CHAINES)
 struct ChaineEllipse{
     Ellipse *ellipse;
     ChaineEllipse* suivant; // pointeur vers la prochaine boule qui sera créée
 };
+// initialisation de ChaineEllipse
+void initialiseChaineEllipse(ChaineEllipse* chaine, Ellipse *ellipse, ChaineEllipse* suivant){
+    chaine->ellipse = ellipse;
+    chaine->suivant = suivant;
+}
 
 // structure du Mur
 struct Mur{
@@ -58,11 +63,7 @@ struct Mur{
     int coordY2;
 };
 
-// initialisation de ChaineEllipse
-void initialiseChaineEllipse(ChaineEllipse* chaine, Ellipse *ellipse, ChaineEllipse* suivant){
-    chaine->ellipse = ellipse;
-    chaine->suivant = suivant;
-}
+
 
 // on a mis ChaineEllipse en paramètres car on va en avoir besoin dans le main
 void draw(SDL_Renderer* renderer,Ellipse* boule)
@@ -101,6 +102,10 @@ int main(int argc, char** argv) {
 
     renderer = SDL_CreateRenderer(gWindow, -1, 0); // SDL_RENDERER_PRESENTVSYNC
 
+
+    // tout ce dont on a besoin pour faire une boule
+    // PERMET DE CREER UNE BOULE
+
     Uint8 r,g,b;
     Sint16 x,y,dx,dy,radius;
     Ellipse boule; 
@@ -108,8 +113,8 @@ int main(int argc, char** argv) {
 
 	x = rand()%SCREEN_WIDTH;
 	y = rand()%SCREEN_HEIGHT;
-    dx = pow((-1),(rand()%2))*(rand()%5+5);
-    dy = pow((-1),(rand()%2))*(rand()%5+5);
+    dx = pow((-1),(rand()%2))*(rand()%5+5); //permet d'avoir une vitesse positive ou négative
+    dy = pow((-1),(rand()%2))*(rand()%5+5); //permet d'avoir une vitesse positive ou négative
 	radius = 15;
 	r = rand()%128+128;
 	g = rand()%128+128;
@@ -117,10 +122,12 @@ int main(int argc, char** argv) {
 
     initialiseEllispe(&boule,x,y,dx,dy,radius,r,g,b);
 
+    // BOULE 2 DE TEST
+
     x = rand()%SCREEN_WIDTH;
 	y = rand()%SCREEN_HEIGHT;
-    dx = pow((-1),(rand()%2))*(rand()%5+5);
-    dy = pow((-1),(rand()%2))*(rand()%5+5);
+    dx = pow((-1),(rand()%2))*(rand()%5+5); //permet d'avoir une vitesse positive ou négative
+    dy = pow((-1),(rand()%2))*(rand()%5+5); //permet d'avoir une vitesse positive ou négative
 	radius = 15;
 	r = rand()%128+128;
 	g = rand()%128+128;
@@ -144,16 +151,16 @@ int main(int argc, char** argv) {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
         
-        // DESSIN
+        // DESSIN DE LA BOULE
         draw(renderer, &boule);
 
-        // mettre à jour boule
+        // mettre à jour boule ET SA VITESSE QD ELLE COGNE UN MUR
         updateEllipse(&boule);
 
-        // DESSIN
+        // DESSIN BOULE2
         draw(renderer, &boule2);
 
-        // mettre à jour boule
+        // mettre à jour boule2
         updateEllipse(&boule2);
 
         // VALIDATION FRAME
