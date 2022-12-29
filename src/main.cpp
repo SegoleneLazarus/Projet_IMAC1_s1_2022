@@ -1,12 +1,10 @@
 #include "application_ui.h"
 #include "SDL2_gfxPrimitives.h"
+#include <iostream>
+using namespace std;
 
 // j'ai tout mis dans le main pour l'instant parce que quand je mets dans un autre fichier j'ai plein d'erreurs et j'ai la flemme de tout régler mtn mais faudra mettre les struct autre part
 
-// salut AD c sego en gros
-
-const int WIDTH  = 300;
-const int HEIGHT = 300;
 
 // structure de l'ellipse 
 struct Ellipse{
@@ -20,10 +18,36 @@ struct Ellipse{
     unsigned int compoBleu;
 };
 
+// initialisation de Ellipse 
+void initialiseEllispe(Ellipse* ellipse, Sint16 x, Sint16 y, Sint16 dx, Sint16 dy, Sint16 radius, Uint8 r, Uint8 g, Uint8 b){
+    ellipse->coordX = x;
+    ellipse->coordY = y;
+    ellipse->vitX = dx;
+    ellipse->vitY = dy;
+    ellipse->rayon = radius;
+    ellipse->compoRouge = r;
+    ellipse->compoVert = g;
+    ellipse->compoBleu = b;
+}
+
+void updateEllipse(Ellipse* ellipse) {
+    ellipse->coordX = ellipse->coordX + ellipse->vitX;
+    ellipse->coordY = ellipse->coordY + ellipse->vitY;
+
+    if(ellipse->coordX <= ellipse->rayon || ellipse->coordX >= SCREEN_WIDTH-ellipse->rayon){
+        ellipse->vitX = - ellipse->vitX;
+    }
+
+    if(ellipse->coordY <= ellipse->rayon || ellipse->coordY >= SCREEN_HEIGHT-ellipse->rayon){
+        ellipse->vitY = - ellipse->vitY;
+    }
+}
+
+
 // structure de la chaine d'ellipse
 struct ChaineEllipse{
     Ellipse *ellipse;
-    int *nod; // je n'ai pas vu les noeuds donc j'ai aucune idée de comment ils fonctionnent
+    ChaineEllipse* suivant; // pointeur vers la prochaine boule qui sera créée
 };
 
 // structure du Mur
@@ -34,45 +58,20 @@ struct Mur{
     int coordY2;
 };
 
-// pas finie je pense mais au moins y'a la base de la fonction (jsp si elle est utile mais je crois que si)
-void initialiseEllispe(Ellipse* ellipse){
-    ellipse->coordX = 0;
-    ellipse->coordY = 0;
-    ellipse->vitX = 0;
-    ellipse->vitY = 0;
-    ellipse->rayon = 0;
-    ellipse->compoRouge = 0;
-    ellipse->compoVert = 0;
-    ellipse->compoBleu = 0;
+// initialisation de ChaineEllipse
+void initialiseChaineEllipse(ChaineEllipse* chaine, Ellipse *ellipse, ChaineEllipse* suivant){
+    chaine->ellipse = ellipse;
+    chaine->suivant = suivant;
 }
 
-void draw(SDL_Renderer* renderer)
+// on a mis ChaineEllipse en paramètres car on va en avoir besoin dans le main
+void draw(SDL_Renderer* renderer,Ellipse* boule)
 {
     /* Remplissez cette fonction pour faire l'affichage du jeu */
 
-    Uint8 r,g,b,a;
-    Sint16 x,y,rx,ry;
-    int n;
+    int a = 255;
 
-		x = WIDTH;
-		y = HEIGHT;
-		rx = 15;
-		ry = 15;
-		r = rand()%256;
-		g = rand()%256;
-		b = rand()%256;
-		a = rand()%256;
-
-		filledEllipseRGBA(renderer,x,y,rx,ry,r,g,b,a);
-	 
-
-    // SDL_RenderPresent(renderer);
-    // int filledEllipseRGBA (SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-    // int filledEllipseRGBA (SDL_Renderer *renderer, Sint16 5, Sint16 5, Sint16 10, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
-    //     renderer, ... ?
-    // ); 
-    
-   
+	filledEllipseRGBA(renderer,boule->coordX,boule->coordY,boule->rayon,boule->rayon,boule->compoRouge,boule->compoVert,boule->compoBleu,a);
 }
 
 bool handleEvent()
@@ -85,7 +84,6 @@ bool handleEvent()
     }
     return true;
 }
-
 
 int main(int argc, char** argv) {
     SDL_Window* gWindow;
@@ -103,6 +101,33 @@ int main(int argc, char** argv) {
 
     renderer = SDL_CreateRenderer(gWindow, -1, 0); // SDL_RENDERER_PRESENTVSYNC
 
+    Uint8 r,g,b;
+    Sint16 x,y,dx,dy,radius;
+    Ellipse boule; 
+    Ellipse boule2; 
+
+	x = rand()%SCREEN_WIDTH;
+	y = rand()%SCREEN_HEIGHT;
+    dx = pow((-1),(rand()%2))*(rand()%5+5);
+    dy = pow((-1),(rand()%2))*(rand()%5+5);
+	radius = 15;
+	r = rand()%128+128;
+	g = rand()%128+128;
+	b = rand()%128+128;
+
+    initialiseEllispe(&boule,x,y,dx,dy,radius,r,g,b);
+
+    x = rand()%SCREEN_WIDTH;
+	y = rand()%SCREEN_HEIGHT;
+    dx = pow((-1),(rand()%2))*(rand()%5+5);
+    dy = pow((-1),(rand()%2))*(rand()%5+5);
+	radius = 15;
+	r = rand()%128+128;
+	g = rand()%128+128;
+	b = rand()%128+128;
+
+    initialiseEllispe(&boule2,x,y,dx,dy,radius,r,g,b);
+
     /*  GAME LOOP  */
     while(true)
     {
@@ -115,22 +140,27 @@ int main(int argc, char** argv) {
 
         // ...
         
-        // while(){
-        //     mettre boulasse
-        // }
-        
         // EFFACAGE FRAME
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
         
         // DESSIN
-        draw(renderer);
+        draw(renderer, &boule);
+
+        // mettre à jour boule
+        updateEllipse(&boule);
+
+        // DESSIN
+        draw(renderer, &boule2);
+
+        // mettre à jour boule
+        updateEllipse(&boule2);
 
         // VALIDATION FRAME
         SDL_RenderPresent(renderer);
 
         // PAUSE en ms
-        SDL_Delay(1000); 
+        SDL_Delay(1000/30); 
     }
 
     //Free resources and close SDL

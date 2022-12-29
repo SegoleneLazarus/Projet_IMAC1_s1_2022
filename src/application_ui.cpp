@@ -3,6 +3,7 @@
 using namespace std;
 
 const int SCREEN_WIDTH = 720, SCREEN_HEIGHT = 480;
+const int NB_BOULES = 10; //nombre de boules qui seront affichées
 
 //Starts up SDL and creates window
 SDL_Window* init(string windowTitle)
