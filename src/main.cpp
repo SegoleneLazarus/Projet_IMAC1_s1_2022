@@ -5,6 +5,9 @@
 
 // salut AD c sego en gros
 
+const int WIDTH  = 300;
+const int HEIGHT = 300;
+
 // structure de l'ellipse 
 struct Ellipse{
     int coordX;
@@ -46,9 +49,26 @@ void initialiseEllispe(Ellipse* ellipse){
 void draw(SDL_Renderer* renderer)
 {
     /* Remplissez cette fonction pour faire l'affichage du jeu */
-    
+
+    Uint8 r,g,b,a;
+    Sint16 x,y,rx,ry;
+    int n;
+
+		x = WIDTH;
+		y = HEIGHT;
+		rx = 15;
+		ry = 15;
+		r = rand()%256;
+		g = rand()%256;
+		b = rand()%256;
+		a = rand()%256;
+
+		filledEllipseRGBA(renderer,x,y,rx,ry,r,g,b,a);
+	 
+
+    // SDL_RenderPresent(renderer);
     // int filledEllipseRGBA (SDL_Surface *dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-    // filledEllipseRGBA(
+    // int filledEllipseRGBA (SDL_Renderer *renderer, Sint16 5, Sint16 5, Sint16 10, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
     //     renderer, ... ?
     // ); 
     
@@ -95,6 +115,9 @@ int main(int argc, char** argv) {
 
         // ...
         
+        // while(){
+        //     mettre boulasse
+        // }
         
         // EFFACAGE FRAME
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -107,7 +130,7 @@ int main(int argc, char** argv) {
         SDL_RenderPresent(renderer);
 
         // PAUSE en ms
-        SDL_Delay(1000/30); 
+        SDL_Delay(1000); 
     }
 
     //Free resources and close SDL
