@@ -121,6 +121,32 @@ void drawMur(SDL_Renderer* renderer,Mur* mur)
 	lineRGBA(renderer,mur->x1,mur->y1,mur->x2,mur->y2,r,g,b,a);
 }
 
+//voir struct SDL_GetMouseState dans SDL_mouse.h
+//on regarde si les x et y de la souris correspondent à une boule
+//on veut que la distance entre le souris et le centre de la balle soit inférieure au rayon de la boule
+//lors du clic, la boule disparait
+
+void supprEllipse(Ellipse* ellipse){
+    int score=0;
+    int xMouse, yMouse;
+    if(SDL_GetMouseState(NULL, NULL)&SDL_BUTTON(1)){ // lors d'un clic
+        // printf("Mouse Button 1(left) is pressed.\n");
+        SDL_GetMouseState(&xMouse,&yMouse);
+        if ((abs(xMouse-ellipse->coordX)<= ellipse->rayon) && (abs(yMouse-ellipse->coordY)<= ellipse->rayon)){
+            ellipse->coordX = 1000;
+            ellipse->coordY = 1000;
+            //on suppr pas vraiment la boule, on la met juste à un endroit ou elle est pas affichée sur l'écran
+            score = score+1;
+            // char affichage = 'score : '+ score;
+            // SDLTest_DrawString(renderer, 10, 50, &texte);
+        }
+        else {
+            // initialiseEllispe(&boule3,x,y,dx,dy,radius,r,g,b);
+            //a rajouter : si l'utilisateur rate, une nouvelle boule se crée
+        }
+    }
+}
+
 bool handleEvent()
 {
     /* Remplissez cette fonction pour gérer les inputs utilisateurs */
@@ -228,6 +254,11 @@ int main(int argc, char** argv) {
         for(int i=0;i<nbMur;i++){
             drawMur(renderer,&tabMur[i]);
         }
+
+        // supprimer les ellipses
+
+        supprEllipse(&boule);
+        supprEllipse(&boule2);
 
         // VALIDATION FRAME
         SDL_RenderPresent(renderer);
